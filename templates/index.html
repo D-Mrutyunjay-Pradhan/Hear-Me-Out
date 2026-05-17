@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Real-Time Sign Language Detection</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI, Arial, sans-serif;
+}
+
+body{
+background: linear-gradient(135deg,rgb(12,10,18),rgb(20,16,28),rgb(70,35,110));
+color:white;
+min-height:100vh;
+}
+
+.navbar{
+display:flex;
+gap:10px;
+padding:10px 20px;
+}
+
+.navTitle{
+font-size:22px;
+font-weight:700;
+}
+
+.c2{
+color:#a84abb;
+}
+
+.container{
+display:flex;
+justify-content:center;
+gap:40px;
+margin-top:30px;
+}
+
+/* CAMERA */
+
+.cameraCard{
+position:relative;
+background:rgba(255,255,255,0.05);
+border-radius:12px;
+padding:15px;
+box-shadow:0 10px 30px rgba(0,0,0,0.5);
+}
+
+.video{
+width:720px;
+border-radius:10px;
+transition:0.5s;
+}
+
+.blur{
+filter:blur(8px) brightness(0.5);
+}
+
+.overlay{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:28px;
+font-weight:600;
+background:rgba(0,0,0,0.6);
+border-radius:12px;
+opacity:0;
+transition:0.5s;
+}
+
+.overlay.show{
+opacity:1;
+}
+
+/* PANEL */
+
+.panel{
+width:350px;
+background:rgba(255,255,255,0.05);
+border-radius:12px;
+padding:25px;
+box-shadow:0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* 🔥 FIXED SENTENCE BOX */
+.sentenceBox{
+height:140px;                 /* 4–5 lines */
+background:#020617;
+border-radius:8px;
+border:2px solid #a84abb;
+padding:15px;
+font-size:20px;
+
+overflow-y:auto;
+
+white-space:pre-wrap;
+word-break:break-word;
+overflow-wrap:break-word;
+
+line-height:1.5;
+}
+
+/* CONTROL */
+
+.control{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-top:25px;
+font-size:17px;
+}
+
+/* TOGGLE */
+
+.switch{
+position:relative;
+display:inline-block;
+width:60px;
+height:32px;
+}
+
+.switch input{
+opacity:0;
+width:0;
+height:0;
+}
+
+.slider{
+position:absolute;
+cursor:pointer;
+top:0;
+left:0;
+right:0;
+bottom:0;
+background:#334155;
+transition:.4s;
+border-radius:30px;
+}
+
+.slider:before{
+position:absolute;
+content:"";
+height:24px;
+width:24px;
+left:4px;
+bottom:4px;
+background:white;
+transition:.4s;
+border-radius:50%;
+}
+
+input:checked + .slider{
+background:#a84abb;
+}
+
+input:checked + .slider:before{
+transform:translateX(26px);
+}
+
+/* BUTTON */
+
+.clearBtn{
+margin-top:30px;
+width:100%;
+padding:12px;
+font-size:16px;
+border:none;
+border-radius:8px;
+background:#ef4444;
+color:white;
+cursor:pointer;
+}
+
+.clearBtn:hover{
+background:#dc2626;
+}
+
+.footer{
+text-align:center;
+padding:5px;
+position:fixed;
+bottom:0;
+width:100%;
+font-size:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header class="navbar">
+<h2 class="navTitle">
+H<span class="c2">E</span>AR ME <span class="c2">O</span>UT
+</h2>
+</header>
+
+<div class="container">
+
+<div class="cameraCard">
+
+<img id="videoFeed" src="/video" class="video">
+
+<div id="overlay" class="overlay">
+Camera Off
+</div>
+
+</div>
+
+<div class="panel">
+
+<h3>Sentence</h3>
+
+<div class="sentenceBox" id="sentence"></div>
+
+<div class="control">
+<span>Camera</span>
+
+<label class="switch">
+<input id="cameraToggle" type="checkbox" onclick="toggleCamera()" checked>
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="control">
+<span>Sentence Builder</span>
+
+<label class="switch">
+<input type="checkbox" onclick="toggleBuilder()" checked>
+<span class="slider"></span>
+</label>
+</div>
+
+<button class="clearBtn" onclick="clearSentence()">
+Clear Sentence
+</button>
+
+</div>
+
+</div>
+
+<script>
+
+function toggleCamera(){
+fetch('/toggle_camera')
+
+let video=document.getElementById("videoFeed")
+let overlay=document.getElementById("overlay")
+let toggle=document.getElementById("cameraToggle")
+
+if(toggle.checked){
+video.classList.remove("blur")
+overlay.classList.remove("show")
+}else{
+video.classList.add("blur")
+overlay.classList.add("show")
+}
+}
+
+function toggleBuilder(){
+fetch('/toggle_sentence')   // ✅ FIXED
+}
+
+function clearSentence(){
+fetch('/clear')   // ✅ FIXED
+}
+
+function updateSentence(){
+fetch('/get_sentence')
+.then(res=>res.text())   // ✅ FIXED
+.then(data=>{
+document.getElementById("sentence").innerText=data
+})
+}
+
+setInterval(updateSentence,300)
+
+</script>
+
+</body>
+
+<footer class="footer">
+© 2026 HEAR ME OUT | Sign Language Detection Project
+</footer>
+
+</html>
